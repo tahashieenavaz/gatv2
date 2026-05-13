@@ -42,7 +42,7 @@ def main(
             matrix=dataset.matrix,
             x=dataset.x,
             y=dataset.y,
-            validation_mask=dataset.validation_mask,
+            validation_mask=dataset.mask.validation,
         )
         print(
             f"Validation Accuracy: {validation_stats.accuracy} | Validation Loss: {validation_stats.loss}"
