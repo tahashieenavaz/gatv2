@@ -1,4 +1,5 @@
 import torch
+from typing import Type
 
 
 class GraphAttentionLayer(torch.nn.Module):
@@ -7,10 +8,10 @@ class GraphAttentionLayer(torch.nn.Module):
         in_features: int,
         out_features: int,
         heads: int,
-        is_concat: bool = True,
-        dropout: float = 0.6,
-        leaky_relu_negative_slope: float = 0.2,
-        share_weights: bool = False,
+        is_concat: bool,
+        dropout: float,
+        share_weights: bool,
+        activation: Type[torch.nn.Module],
     ):
         super().__init__()
         self.is_concat = is_concat
@@ -25,7 +26,7 @@ class GraphAttentionLayer(torch.nn.Module):
         )
 
         self.attention = torch.nn.Linear(self.n_hidden, 1, bias=False)
-        self.activation = torch.nn.LeakyReLU(negative_slope=leaky_relu_negative_slope)
+        self.activation = activation()
         self.dropout = torch.nn.Dropout(dropout)
 
     def forward(self, h: torch.Tensor, adj_mat: torch.Tensor):
