@@ -1,4 +1,4 @@
 from .GraphAttention import GraphAttention
 from .GraphAttentionLayer import GraphAttentionLayer
 
-__version__ = "0.0.01"
+__version__ = "0.0.02"
