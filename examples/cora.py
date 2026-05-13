@@ -1,6 +1,9 @@
 import torch
+import random
+import numpy
 from gatv2 import GraphAttention
 from types import SimpleNamespace
+from typing import Optional
 from torch_geometric.datasets import Planetoid
 from torch_geometric.utils import to_dense_adj
 
@@ -11,7 +14,11 @@ def main(
     weight_decay: float = 0.0005,
     heads: int = 8,
     dropout: float = 0.6,
+    seed: Optional[int] = 1002,
 ):
+    if seed is not None:
+        seed_everything(seed)
+
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     dataset = load_cora(device)
     model = GraphAttention(
@@ -74,6 +81,17 @@ def load_cora(device):
             ),
         }
     )
+
+
+def seed_everything(seed: int):
+    random.seed(seed)
+    numpy.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.use_deterministic_algorithms(True)
 
 
 def get_optimizer(*, model, lr: float, weight_decay: float):
