@@ -5,16 +5,22 @@ from torch_geometric.datasets import Planetoid
 from torch_geometric.utils import to_dense_adj
 
 
-def main(epochs: int = 200):
+def main(
+    epochs: int = 200,
+    lr: float = 0.005,
+    weight_decay: float = 0.0005,
+    heads: int = 8,
+    dropout: float = 0.6,
+):
     dataset = load_cora()
     model = GraphAttention(
         in_features=dataset.num_features,
         num_classes=dataset.num_classes,
         hidden_dimension=8,
-        heads=8,
-        dropout=0.6,
+        heads=heads,
+        dropout=dropout,
     )
-    optimizer = get_optimizer()
+    optimizer = get_optimizer(model=model, lr=lr, weight_decay=weight_decay)
     criterion = get_criterion()
 
     for epoch in range(epochs):
@@ -67,8 +73,8 @@ def load_cora():
     )
 
 
-def get_optimizer(model):
-    return torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=5e-4)
+def get_optimizer(*, model, lr: float, weight_decay: float):
+    return torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 
 
 def get_criterion():
