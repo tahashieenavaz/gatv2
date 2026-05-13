@@ -12,7 +12,8 @@ def main(
     heads: int = 8,
     dropout: float = 0.6,
 ):
-    dataset = load_cora()
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    dataset = load_cora(device)
     model = GraphAttention(
         in_features=dataset.num_features,
         num_classes=dataset.num_classes,
@@ -20,6 +21,7 @@ def main(
         heads=heads,
         dropout=dropout,
     )
+    model = model.to(device)
     optimizer = get_optimizer(model=model, lr=lr, weight_decay=weight_decay)
     criterion = get_criterion()
 
@@ -50,13 +52,13 @@ def main(
         )
 
 
-def load_cora():
+def load_cora(device):
     dataset = Planetoid(root="./data", name="Cora")
     cora_data = dataset[0]
-    x = cora_data.x
-    y = cora_data.y
+    x = cora_data.x.to(device)
+    y = cora_data.y.to(device)
     matrix = to_dense_adj(cora_data.edge_index, max_num_nodes=cora_data.num_nodes)
-    matrix = matrix[0].unsqueeze(-1)
+    matrix = matrix[0].unsqueeze(-1).to(device)
     return SimpleNamespace(
         **{
             "x": x,
