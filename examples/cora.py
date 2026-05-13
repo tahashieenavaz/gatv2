@@ -65,7 +65,7 @@ def load_cora():
             "num_classes": dataset.num_classes,
             "mask": SimpleNamespace(
                 **{
-                    "validation": cora_data.validation_mask,
+                    "validation": cora_data.val_mask,
                     "train": cora_data.train_mask,
                 }
             ),
