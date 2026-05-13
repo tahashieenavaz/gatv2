@@ -19,6 +19,7 @@ def main(
     if seed is not None:
         seed_everything(seed)
 
+    torch.set_float32_matmul_precision("high")
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     dataset = load_cora(device)
     model = GraphAttention(
@@ -28,7 +29,7 @@ def main(
         heads=heads,
         dropout=dropout,
     )
-    model = model.to(device)
+    model = torch.compile(model.to(device))
     optimizer = get_optimizer(model=model, lr=lr, weight_decay=weight_decay)
     criterion = get_criterion()
 
@@ -54,9 +55,12 @@ def main(
             validation_mask=dataset.mask.validation,
             criterion=criterion,
         )
+
         print(
             f"Validation Accuracy: {validation_stats.accuracy} | Validation Loss: {validation_stats.loss}"
         )
+
+    print(model)
 
 
 def load_cora(device):
