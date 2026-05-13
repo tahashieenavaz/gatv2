@@ -108,3 +108,7 @@ def validate(model, matrix, x, y, criterion, validation_mask):
     correct = (predictions == y[validation_mask]).sum().item()
     accuracy = correct / validation_mask.sum().item()
     return SimpleNamespace(**{"accuracy": accuracy, "loss": validation_loss})
+
+
+if __name__ == "__main__":
+    main()
