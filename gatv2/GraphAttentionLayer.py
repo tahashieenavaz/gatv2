@@ -29,7 +29,7 @@ class GraphAttentionLayer(torch.nn.Module):
         self.activation = activation()
         self.dropout = torch.nn.Dropout(dropout)
 
-    def forward(self, h: torch.Tensor, adj_mat: torch.Tensor):
+    def forward(self, h: torch.Tensor, matrix: torch.Tensor):
         n_nodes = h.size(0)
 
         # project and reshape: (N, H, F)
@@ -43,11 +43,13 @@ class GraphAttentionLayer(torch.nn.Module):
         e = self.attention(self.activation(g_sum)).squeeze(-1)
 
         # mask disconnected nodes and apply softmax
-        e = e.masked_fill(adj_mat == 0, float("-inf"))
-        a = self.dropout(torch.softmax(e, dim=1))
+        e = e.masked_fill(matrix == 0, float("-inf"))
+
+        attention = torch.softmax(e, dim=1)
+        attention = self.dropout(attention)
 
         # apply attention to right node features: (N, H, F)
-        attention_residual = torch.einsum("ijh,jhf->ihf", a, g_r)
+        attention_residual = torch.einsum("ijh,jhf->ihf", attention, g_r)
 
         return (
             attention_residual.reshape(n_nodes, -1)
