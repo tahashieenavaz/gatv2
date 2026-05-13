@@ -17,7 +17,7 @@ class GraphAttention(torch.nn.Module):
     ):
         super().__init__()
         self.dropout = torch.nn.Dropout(dropout)
-        self.layer1 = GraphAttentionLayer(
+        self.alpha = GraphAttentionLayer(
             in_features,
             hidden_dimension,
             heads,
@@ -26,7 +26,7 @@ class GraphAttention(torch.nn.Module):
             share_weights=share_weights,
             activation=layer_activation,
         )
-        self.output = GraphAttentionLayer(
+        self.beta = GraphAttentionLayer(
             hidden_dimension,
             num_classes,
             1,
@@ -37,8 +37,9 @@ class GraphAttention(torch.nn.Module):
         )
         self.activation = activation()
 
-    def forward(self, x: torch.Tensor, adj_mat: torch.Tensor):
+    def forward(self, x: torch.Tensor, matrix: torch.Tensor):
         x = self.dropout(x)
-        x = torch.nn.functional.elu(self.layer1(x, adj_mat))
+        x = self.alpha(x, matrix)
+        x = self.activation(x)
         x = self.dropout(x)
-        return self.output(x, adj_mat)
+        return self.beta(x, matrix)
